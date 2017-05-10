@@ -6,7 +6,9 @@ Private Const APP_NAME As String = "SearchISBNAddin"
 Private Const SHEET_SETTING As String = "SheetSetting"
 Private Const CONNECT_SETTING As String = "ConnectSetting"
 
-' ƒV[ƒgİ’è‚Ì\‘¢‘Ì
+' ====================
+'  ƒV[ƒgİ’è‚Ì\‘¢‘Ì
+' ====================
 Public Type SheetConfig
     ' ŠJns”Ô†
     StartRow As Integer
@@ -36,7 +38,9 @@ Public Type SheetConfig
     TITLE_WITH_VOLUME As Boolean
 End Type
 
-' Ú‘±î•ñ‚Ì\‘¢‘Ì
+' ==================
+'  Ú‘±î•ñ‚Ì\‘¢‘Ì
+' ==================
 Public Type ConnectConfig
     ' ServerXMLHTTP‚ğg—p‚·‚é‚©H
     UseServerHTTP As Boolean
@@ -52,6 +56,15 @@ Public Type ConnectConfig
 End Type
 
 Public Function GetSheetConfig() As SheetConfig
+' -----------------------------------------------------------
+' ƒV[ƒgİ’è‚ğƒŒƒWƒXƒgƒŠ‚æ‚è“Ç‚İ‚Ş
+'
+' Return value:
+'   ƒV[ƒgİ’è
+'
+' Remarks:
+'   ‚Ü‚¾ƒŒƒWƒXƒgƒŠ‚É‘‚«‚Ü‚ê‚Ä‚¢‚È‚¢ê‡‚Í‰Šú’l‚ª•Ô‚³‚ê‚é
+' -----------------------------------------------------------
     Dim conf As SheetConfig
             
     conf.StartRow = CInt(GetSetting(APP_NAME, SHEET_SETTING, "StartRow", "2"))
@@ -68,6 +81,12 @@ Public Function GetSheetConfig() As SheetConfig
 End Function
 
 Public Sub SaveSheetConfig(conf As SheetConfig)
+' ----------------------------------------------
+' ƒV[ƒgİ’è‚ğƒŒƒWƒXƒgƒŠ‚É‘‚«‚Ş
+'
+' Parameter:
+'   [conf]   IN ƒV[ƒgİ’è
+' ----------------------------------------------
     SaveSetting APP_NAME, SHEET_SETTING, "StartRow", CStr(conf.StartRow)
     SaveSetting APP_NAME, SHEET_SETTING, "ISBN", CStr(conf.ISBN)
     SaveSetting APP_NAME, SHEET_SETTING, "TITLE", CStr(conf.TITLE)
@@ -80,6 +99,16 @@ Public Sub SaveSheetConfig(conf As SheetConfig)
 End Sub
 
 Public Function GetSheetConfigByWorkbook(wb As Workbook) As SheetConfig
+' --------------------------------------------------------------------------
+' ƒV[ƒgİ’è‚ğƒuƒbƒN‚©‚ç“Ç‚İ‚Ş
+' ‚Ü‚¾ƒuƒbƒN‚ÉƒV[ƒgİ’è‚ª‘‚«‚Ü‚ê‚Ä‚¢‚È‚¢ê‡‚ÍƒŒƒWƒXƒgƒŠA‚à‚µ‚­‚Í‰Šú’l‚ª•Ô‚³‚ê‚é
+'
+' Parameter:
+'    [wb]   IN ƒ[ƒNƒuƒbƒNANothing‚Ìê‡‚Íƒ[ƒNƒuƒbƒN‚©‚ç‚Í“Ç‚İ‚Ü‚È‚¢
+'
+' Return value:
+'    ƒV[ƒgİ’è
+' --------------------------------------------------------------------------
 On Error Resume Next ' ƒJƒXƒ^ƒ€ƒvƒƒpƒeƒB‚ª–¢İ’è‚Ìê‡‚ÍƒGƒ‰[‚ğ–³‹‚µ‚ÄŸ‚¬‚Éi‚Ş
     Dim conf As SheetConfig
     conf = GetSheetConfig() ' ƒfƒtƒHƒ‹ƒg’l‚Ìæ“¾
@@ -102,6 +131,13 @@ On Error Resume Next ' ƒJƒXƒ^ƒ€ƒvƒƒpƒeƒB‚ª–¢İ’è‚Ìê‡‚ÍƒGƒ‰[‚ğ–³‹‚µ‚ÄŸ‚¬‚É
 End Function
 
 Public Sub SaveSheetConfigByWorkbook(wb As Workbook, conf As SheetConfig)
+' --------------------------------------------------------------------------
+' ƒV[ƒgİ’è‚ğƒuƒbƒN‚ÆƒŒƒWƒXƒgƒŠ‚É‘‚«‚Ş
+'
+' Parameter:
+'    [wb]   IN ƒ[ƒNƒuƒbƒNANothing‚Ìê‡‚Íƒ[ƒNƒuƒbƒN‚É‚Í‘‚«‚Ü‚È‚¢.
+'    [conf] IN ƒV[ƒg‚Ìİ’è
+' -------------------------------------------------------------------------
     SaveSheetConfig conf ' Ÿ‰ñ‚ÌƒfƒtƒHƒ‹ƒg’l‚Ì‚½‚ß‚ÉƒŒƒWƒXƒgƒŠ‚É‚à•Û‘¶‚·‚é
     
     If wb Is Nothing Then Exit Sub
@@ -144,8 +180,18 @@ Public Sub SaveSheetConfigByWorkbook(wb As Workbook, conf As SheetConfig)
     Next
 End Sub
 
-' ƒRƒŒƒNƒVƒ‡ƒ“‚Éw’è‚³‚ê‚½ƒL[‚ª‘¶İ‚·‚é‚©”»’è‚·‚é
 Private Function Contains(col As Collection, key As Variant) As Boolean
+'--------------------------------------------------------------
+' ƒRƒŒƒNƒVƒ‡ƒ“‚Éw’è‚³‚ê‚½ƒL[‚ª‘¶İ‚·‚é‚©”»’è‚·‚é
+'
+' Parameter:
+'    [col] IN ƒRƒŒƒNƒVƒ‡ƒ“
+'    [key] IN ƒL[
+'
+' Return value:
+'    w’è‚³‚ê‚½ƒL[‚ªƒRƒŒƒNƒVƒ‡ƒ“‚ÉŠÜ‚Ü‚ê‚Ä‚¢‚éê‡‚ÍTrueA
+'    ‚»‚¤‚Å‚È‚¯‚ê‚ÎFalse
+'--------------------------------------------------------------
 On Error GoTo Err
     Dim dummy As Variant
     dummy = col(key)
@@ -153,14 +199,25 @@ On Error GoTo Err
 Err:
 End Function
 
-' ƒRƒŒƒNƒVƒ‡ƒ“‚ÉƒL[A’lAŒ^î•ñ‚ğ•Û‘¶‚·‚é
-' ƒL[‚ÍƒL[’l‚Æ‚µ‚Ä•Û‘¶‚³‚ê‚éB’l‚ÍAƒL[A’lAŒ^î•ñ‚Ì‚R—v‘f‚©‚ç‚È‚éArray‚Æ‚µ‚Ä•Û‘¶‚³‚ê‚é.
 Private Sub AddValue(col As Collection, key As String, item As Variant, typ As Integer)
+'--------------------------------------------------------------
+' ƒRƒŒƒNƒVƒ‡ƒ“‚ÉƒL[A’lAŒ^î•ñ‚ğ•Û‘¶‚·‚é
+' ƒL[‚ÍƒL[’l‚Æ‚µ‚Ä•Û‘¶‚³‚ê‚éB
+' ’l‚ÍAƒL[A’lAŒ^î•ñ‚Ì‚R—v‘f‚©‚ç‚È‚éArray‚Æ‚µ‚Ä•Û‘¶‚³‚ê‚é.
+'--------------------------------------------------------------
     col.Add key:=key, item:=Array(key, item, typ)
 End Sub
 
-
 Public Function GetConnectConfig() As ConnectConfig
+' ---------------------------------------------------
+' Ú‘±İ’è‚ğƒŒƒWƒXƒgƒŠ‚©‚ç“Ç‚İ‚Ş
+'
+' Return value:
+'    ƒŒƒWƒXƒgƒŠ‚©‚ç“Ç‚İ‚Ü‚ê‚½Ú‘±î•ñ
+'
+' Remarks:
+'    ‚Ü‚¾ƒŒƒWƒXƒgƒŠ‚É‘‚«‚Ü‚ê‚Ä‚¢‚È‚¢ê‡‚Í‰Šú’l‚ª•Ô‚³‚ê‚é.
+' ---------------------------------------------------
     Dim conf As ConnectConfig
     
     conf.UseServerHTTP = CBool(GetSetting(APP_NAME, CONNECT_SETTING, "UseServerHTTP", "True"))
@@ -175,6 +232,12 @@ Public Function GetConnectConfig() As ConnectConfig
 End Function
 
 Public Sub SaveConnectConfig(conf As ConnectConfig)
+'-------------------------------------------------
+' Ú‘±İ’è‚ğƒŒƒWƒXƒgƒŠ‚É‘‚«‚Ş
+'
+' Parameter:
+'   conf [IN] Ú‘±î•ñ
+'-------------------------------------------------
     SaveSetting APP_NAME, CONNECT_SETTING, "UseServerHTTP", CStr(conf.UseServerHTTP)
     SaveSetting APP_NAME, CONNECT_SETTING, "TimeoutMillis", CStr(conf.TimeoutMillis)
 
@@ -185,6 +248,9 @@ Public Sub SaveConnectConfig(conf As ConnectConfig)
 End Sub
 
 Public Sub ShowConfigForm()
+'--------------------------
+' İ’èƒ_ƒCƒAƒƒO‚ğ•\¦‚·‚é
+'--------------------------
     Dim frm As New ConfigForm
     frm.Show
 End Sub

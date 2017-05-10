@@ -28,8 +28,14 @@ Public Sub ShowAboutFromRibbon(ribbon As IRibbonControl)
 End Sub
 
 
-' ISBN検索実行
 Sub UpdateSheet()
+' ------------------------------------------------------------
+' 事前に定義されているシートの設定に従ってISBN検索を実施する.
+'
+' Remarks:
+'   現在のアクティブシートが対象となる.
+'   アクティブシートがない場合は何もしない.
+' ------------------------------------------------------------
 On Error GoTo Err
     If ActiveWorkbook Is Nothing Then Exit Sub
     
@@ -48,22 +54,31 @@ Err:
     Exit Sub
 End Sub
 
-' シートの設定に従って検索を実施する.
 Public Sub UpdateSheetWithConf(Sheet As Worksheet)
+' ------------------------------------------------------------
+' 事前に定義されているシートの設定に従ってISBN検索を実施する.
+'
+' Parameter:
+'    [Sheet] IN 対象となるワークシート
+'-------------------------------------------------------------
+
+    ' 設定値の読み込み
     Dim conf As ConfigModule.SheetConfig
     Dim connectConf As ConfigModule.ConnectConfig
     conf = ConfigModule.GetSheetConfig()
     connectConf = ConfigModule.GetConnectConfig()
     
-    Dim sercher As New SearchISBN
+    ' ISBN検索オブジェクトの構築
+    Dim SearcherImpl As New NDLSearchISBN
+    ' ISBNの妥当性チェック
+    Dim verifier As New ISBNVerifier
     
-    sercher.UseServerHTTP = connectConf.UseServerHTTP
-    sercher.TimeoutMillis = connectConf.TimeoutMillis
+    ' XMLリーダーの構築
+    Dim fac As New XMLReaderFactory
+    Set SearcherImpl.XmlReader = fac.Create(connectConf)
     
-    sercher.UseProxy = connectConf.UseProxy
-    sercher.ProxyAddress = connectConf.ProxyAddress
-    sercher.ProxyUser = connectConf.ProxyUser
-    sercher.ProxyPassword = connectConf.ProxyPassword
+    Dim searcher As ISearchISBN
+    Set searcher = SearcherImpl
     
     ' シートで使用されているセル範囲
     Dim MaxRow As Integer, MaxCol As Integer
@@ -82,7 +97,7 @@ Public Sub UpdateSheetWithConf(Sheet As Worksheet)
     Do While row <= MaxRow
         DoEvents
         
-        ISBN = Sheet.Cells(row, conf.ISBN).value
+        ISBN = Trim(Sheet.Cells(row, conf.ISBN).value)
         TITLE = Sheet.Cells(row, conf.TITLE).value
         
         If ISBN = "" Then
@@ -90,28 +105,39 @@ Public Sub UpdateSheetWithConf(Sheet As Worksheet)
         
         ElseIf TITLE = "" Then
             ' まだタイトルが取得されていない行のみ処理する.
-            ' 現在処理中のISBNをステータスバーに表示する.
-            Application.StatusBar = "ISBN:" & ISBN
             
-            Dim info As BookInfo
-            If sercher.FindByISBN(ISBN, info) Then
-                TITLE = info.TITLE
+            ' ISBNからハイフンと空白を除去する
+            ISBN = Replace(ISBN, "-", "")
+            ISBN = Replace(ISBN, " ", "")
+            
+            ' ISBNの妥当性チェック
+            If verifier.Verify(ISBN) Then
+                ' 現在処理中のISBNをステータスバーに表示する.
+                Application.StatusBar = "ISBN:" & ISBN
                 
-                If info.VOLUME <> "" And conf.TITLE_WITH_VOLUME Then
-                    ' Volumeの指定がある場合はタイトルに括弧付きでつなげる.
-                    TITLE = TITLE & "(" & info.VOLUME & ")"
+                ' 検索の実施
+                Dim info As BookInfo
+                If searcher.FindByISBN(ISBN, info) Then
+                    TITLE = info.TITLE
+                    
+                    If info.VOLUME <> "" And conf.TITLE_WITH_VOLUME Then
+                        ' Volumeの指定がある場合はタイトルに括弧付きでつなげる.
+                        TITLE = TITLE & "(" & info.VOLUME & ")"
+                    End If
+                    
+                    UpdateCell Sheet, row, conf.TITLE, TITLE
+                    UpdateCell Sheet, row, conf.AUTHOR, info.AUTHOR
+                    UpdateCell Sheet, row, conf.PUBLISHER, info.PUBLISHER
+                    UpdateCell Sheet, row, conf.ISSUED, info.ISSUED
+                    UpdateCell Sheet, row, conf.YOMI, info.YOMI
+                    UpdateCell Sheet, row, conf.VOLUME, info.VOLUME
+                Else
+                    ' 書籍情報が取得できないISBNはセルの背景色を変えておく
+                    Sheet.Cells(row, conf.ISBN).Interior.ColorIndex = 37
                 End If
-                
-                UpdateCell Sheet, row, conf.TITLE, TITLE
-                UpdateCell Sheet, row, conf.AUTHOR, info.AUTHOR
-                UpdateCell Sheet, row, conf.PUBLISHER, info.PUBLISHER
-                UpdateCell Sheet, row, conf.ISSUED, info.ISSUED
-                UpdateCell Sheet, row, conf.YOMI, info.YOMI
-                UpdateCell Sheet, row, conf.VOLUME, info.VOLUME
-            
             Else
-                ' 書籍情報が取得できないISBNはセルの背景色を変えておく
-                Sheet.Cells(row, conf.ISBN).Interior.ColorIndex = 37
+                ' ISBNが妥当でない場合はセルの背景色を変えておく
+                Sheet.Cells(row, conf.ISBN).Interior.ColorIndex = 38
             End If
         End If
         row = row + 1
@@ -120,9 +146,19 @@ Public Sub UpdateSheetWithConf(Sheet As Worksheet)
     Application.StatusBar = False
 End Sub
 
-' セル列位置が有効であれば、そのセルに書き込む.
-' (0以下のセル列番号が指定されている場合は省略項目として書き込みしない)
 Private Sub UpdateCell(Sheet As Worksheet, row As Integer, col As Integer, value As String)
+'------------------------------------------------------------------------
+' セル列位置が有効であれば、そのセルに書き込む.
+'
+' Parameter:
+'   [Sheet] IN 書き込み先シート
+'   [Row]   IN 行番号
+'   [Col]   IN 列番号
+'   [Value] IN 書き込む文字列
+'
+' Remarks:
+'   0以下の列番号が指定されている場合は書き込みせず省略する.
+'------------------------------------------------------------------------
     If col > 0 Then
         Sheet.Cells(row, col).value = value
     End If
