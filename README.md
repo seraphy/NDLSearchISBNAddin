@@ -110,7 +110,7 @@ https://github.com/vbaidiot/Ariawase
 
 (フォルダ名を*.xlsmに変えてcombineします。)
 
-参照設定として、**"Microsoft XML, v6"**の設定も必要です。
+参照設定として、"**Microsoft XML, v6**"の設定も必要です。
 
 また、生成されたxlsmにはリボン設定等がないので、
 
