@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+	<ribbon startFromScratch="false">
+		<tabs>
+			<tab id="SearchISBNSet" label="ISBN検索">
+				<group id="SearchISBN" label="ISBN検索">
+					<button id="UpdateFormFromRibbon" label="ISBN検索" imageMso="ImportXmlFile" size="large" onAction="UpdateSheetFromRibbon" />
+					<button id="ShowConfigFormRibbon" label="フォーム設定" imageMso="ControlsGallery" size="large" onAction="ShowConfigFormRibbon" />
+					<button id="ShowAboutFormRibbon" label="About" imageMso="HappyFace" size="large" onAction="ShowAboutFromRibbon" />
+				</group>
+			</tab>
+		</tabs>
+	</ribbon>
+</customUI>
