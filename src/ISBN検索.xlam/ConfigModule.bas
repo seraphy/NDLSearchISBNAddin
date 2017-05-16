@@ -13,6 +13,9 @@ Public Type SheetConfig
     ' äJénçsî‘çÜ
     StartRow As Integer
     
+    ' ëIëçsÇ©ÇÁåüçıÇäJénÇ∑ÇÈÇ©ÅH
+    StartCurPos As Boolean
+    
     ' ISBNÇÃóÒî‘çÜ
     ISBN As Integer
     
@@ -68,6 +71,7 @@ Public Function GetSheetConfig() As SheetConfig
     Dim conf As SheetConfig
             
     conf.StartRow = CInt(GetSetting(APP_NAME, SHEET_SETTING, "StartRow", "2"))
+    conf.StartCurPos = CBool(GetSetting(APP_NAME, SHEET_SETTING, "StartCurPos", "False"))
     conf.ISBN = CInt(GetSetting(APP_NAME, SHEET_SETTING, "ISBN", "2"))
     conf.TITLE = CInt(GetSetting(APP_NAME, SHEET_SETTING, "TITLE", "3"))
     conf.AUTHOR = CInt(GetSetting(APP_NAME, SHEET_SETTING, "AUTHOR", "4"))
@@ -88,6 +92,7 @@ Public Sub SaveSheetConfig(conf As SheetConfig)
 '   [conf]   IN ÉVÅ[Égê›íË
 ' ----------------------------------------------
     SaveSetting APP_NAME, SHEET_SETTING, "StartRow", CStr(conf.StartRow)
+    SaveSetting APP_NAME, SHEET_SETTING, "StartCurPos", CStr(conf.StartCurPos)
     SaveSetting APP_NAME, SHEET_SETTING, "ISBN", CStr(conf.ISBN)
     SaveSetting APP_NAME, SHEET_SETTING, "TITLE", CStr(conf.TITLE)
     SaveSetting APP_NAME, SHEET_SETTING, "AUTHOR", CStr(conf.AUTHOR)
@@ -116,6 +121,7 @@ On Error Resume Next ' ÉJÉXÉ^ÉÄÉvÉçÉpÉeÉBÇ™ñ¢ê›íËÇÃèÍçáÇÕÉGÉâÅ[Çñ≥éãÇµÇƒéüÇ¨Ç…ê
     If Not wb Is Nothing Then
         With wb.CustomDocumentProperties
             conf.StartRow = .item("ISBN_ROW")
+            conf.StartCurPos = .item("START_AT_CURSOR_POS")
             conf.ISBN = .item("ISBN_COL")
             conf.TITLE = .item("TITLE_COL")
             conf.AUTHOR = .item("AUTHOR_COL")
@@ -145,6 +151,7 @@ Public Sub SaveSheetConfigByWorkbook(wb As Workbook, conf As SheetConfig)
     ' ï€ë∂Ç∑ÇÈílÇÉRÉåÉNÉVÉáÉìÇ…ì¸ÇÍÇÈ
     Dim keyValues As New Collection
     AddValue keyValues, "ISBN_ROW", conf.StartRow, msoPropertyTypeNumber
+    AddValue keyValues, "START_AT_CURSOR_POS", conf.StartCurPos, msoPropertyTypeBoolean
     AddValue keyValues, "ISBN_COL", conf.ISBN, msoPropertyTypeNumber
     AddValue keyValues, "TITLE_COL", conf.TITLE, msoPropertyTypeNumber
     AddValue keyValues, "AUTHOR_COL", conf.AUTHOR, msoPropertyTypeNumber
@@ -176,7 +183,6 @@ Public Sub SaveSheetConfigByWorkbook(wb As Workbook, conf As SheetConfig)
             LinkToContent:=False, _
             Type:=typ, _
             value:=value
-            
     Next
 End Sub
 

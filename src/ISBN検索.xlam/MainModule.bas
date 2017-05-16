@@ -87,11 +87,12 @@ Public Sub UpdateSheetWithConf(Sheet As Worksheet)
         MaxCol = .Columns(.Columns.Count).Column
     End With
     
-    Dim row As Integer
     Dim ISBN As String
     Dim TITLE As String
     
-    row = conf.StartRow
+    Dim row As Integer
+    If conf.StartCurPos Then row = ActiveCell.row
+    If row < conf.StartRow Then row = conf.StartRow
     
     ' 開始行からシートで使用されている最大行までループする
     Do While row <= MaxRow

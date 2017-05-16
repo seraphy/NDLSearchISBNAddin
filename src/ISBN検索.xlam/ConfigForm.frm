@@ -15,6 +15,7 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
 
+
 Private Sub OptClient_Change()
     OnConnectModeChange
 End Sub
@@ -48,6 +49,7 @@ Private Sub UserForm_Initialize()
     sheetConf = ConfigModule.GetSheetConfigByWorkbook(ActiveWorkbook)
     
     txtStartRow.Text = CStr(sheetConf.StartRow)
+    chkStartCurPos.value = sheetConf.StartCurPos
     txtISBN.Text = CStr(sheetConf.ISBN)
     txtTITLE.Text = CStr(sheetConf.TITLE)
     txtAUTHOR.Text = CStr(sheetConf.AUTHOR)
@@ -79,6 +81,7 @@ Private Sub btnSave_Click()
 On Error GoTo Err
     Dim sheetConf As ConfigModule.SheetConfig
     sheetConf.StartRow = CInt(txtStartRow.Text)
+    sheetConf.StartCurPos = chkStartCurPos.value
     sheetConf.ISBN = CInt(txtISBN.Text)
     sheetConf.TITLE = CInt(txtTITLE.Text)
     sheetConf.AUTHOR = CInt(txtAUTHOR.Text)
