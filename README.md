@@ -1,4 +1,4 @@
-# これは何か？
+# これは何か？ [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 ISBNをキーに国会図書館が公開する図書の書誌情報を抽出する、VBAマクロによるアドインです。
 
